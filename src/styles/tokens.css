@@ -1,0 +1,89 @@
+/* ============================================================
+   DESIGN TOKENS — "Cosmic Intensity"
+   deep-space black · violet→cyan energy · calm base, bold pops
+   ============================================================ */
+:root {
+  /* --- Surface / base --- */
+  --bg: #05060a;
+  --bg-1: #080a12;
+  --bg-elevated: #0d1019;
+  --bg-glass: rgba(18, 22, 34, 0.55);
+  --border: rgba(140, 160, 220, 0.14);
+  --border-strong: rgba(160, 180, 240, 0.28);
+
+  /* --- Text --- */
+  --text: #eaf0ff;
+  --text-muted: #9aa6c4;
+  --text-faint: #5f6b88;
+
+  /* --- Accents (the "energy") --- */
+  --violet: #7c5cff;
+  --violet-deep: #5b3df0;
+  --cyan: #22d3ee;
+  --cyan-soft: #67e8f9;
+  --accent-gradient: linear-gradient(120deg, var(--violet) 0%, var(--cyan) 100%);
+  --accent-gradient-soft: linear-gradient(120deg, #9d86ff 0%, #7ff0ff 100%);
+  --glow-violet: rgba(124, 92, 255, 0.55);
+  --glow-cyan: rgba(34, 211, 238, 0.5);
+
+  /* --- Typography --- */
+  --font-display: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Inter", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", "SFMono-Regular", ui-monospace, monospace;
+
+  /* Modular scale (clamped, fluid) */
+  --fs-100: 0.75rem;
+  --fs-200: 0.875rem;
+  --fs-300: 1rem;
+  --fs-400: clamp(1.05rem, 0.98rem + 0.35vw, 1.25rem);
+  --fs-500: clamp(1.35rem, 1.2rem + 0.7vw, 1.75rem);
+  --fs-600: clamp(1.8rem, 1.5rem + 1.4vw, 2.6rem);
+  --fs-700: clamp(2.4rem, 1.9rem + 2.6vw, 3.8rem);
+  --fs-800: clamp(3rem, 2.2rem + 4.4vw, 5.8rem);
+  --fs-900: clamp(3.6rem, 2.3rem + 6.8vw, 8rem);
+
+  --lh-tight: 1.02;
+  --lh-snug: 1.2;
+  --lh-body: 1.65;
+
+  --fw-light: 300;
+  --fw-normal: 400;
+  --fw-medium: 500;
+  --fw-bold: 700;
+
+  /* --- Spacing scale --- */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4rem;
+  --space-9: 6rem;
+  --space-10: 8rem;
+  --space-12: 12rem;
+
+  /* --- Radius / shadow --- */
+  --radius-sm: 8px;
+  --radius: 14px;
+  --radius-lg: 22px;
+  --radius-pill: 999px;
+  --shadow-glow: 0 0 40px -8px var(--glow-violet);
+  --shadow-card: 0 20px 60px -30px rgba(0, 0, 0, 0.9);
+  --shadow-lift: 0 30px 80px -32px rgba(80, 60, 200, 0.5);
+
+  /* --- Motion --- */
+  --dur-fast: 0.2s;
+  --dur-base: 0.45s;
+  --dur-slow: 0.9s;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* --- Layout --- */
+  --container: 1180px;
+  --container-narrow: 760px;
+  --gutter: clamp(1.2rem, 5vw, 3rem);
+  --nav-h: 76px;
+}

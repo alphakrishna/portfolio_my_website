@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Krishna Pratap Singh — Software Developer</title>
+  <meta name="description" content="Krishna Pratap Singh — software developer who builds fast, high-quality web apps and products. Best quality, in the shortest time." />
+  <meta name="author" content="Krishna Pratap Singh" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Krishna Pratap Singh — Software Developer" />
+  <meta property="og:description" content="I build software that raises what a business is capable of. Best quality, in the shortest time." />
+
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%237c5cff'/><stop offset='1' stop-color='%2322d3ee'/></linearGradient></defs><rect width='100' height='100' rx='24' fill='%2305060a'/><text x='50' y='72' font-size='64' font-family='monospace' font-weight='700' fill='url(%23g)' text-anchor='middle'>K</text></svg>" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="/src/styles/main.css" />
+</head>
+<body>
+  <!-- ===== Custom cursor + spotlight ===== -->
+  <div class="cursor-spotlight" aria-hidden="true"></div>
+  <div class="cursor-ring" aria-hidden="true"></div>
+  <div class="cursor-dot" aria-hidden="true"></div>
+
+  <!-- ===== Nav ===== -->
+  <nav class="site-nav" id="nav">
+    <div class="nav-inner">
+      <a href="#top" class="nav-logo" data-magnetic>
+        <span class="mark">K</span>
+        <span>Krishna<span style="color:var(--text-faint)">.dev</span></span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="#about" data-nav>About</a></li>
+        <li><a href="#skills" data-nav>Skills</a></li>
+        <li><a href="#work" data-nav>Work</a></li>
+        <li><a href="#reviews" data-nav>Reviews</a></li>
+      </ul>
+      <a href="#contact" class="btn btn-primary nav-cta" data-magnetic data-cursor>Let's talk <span class="arrow">→</span></a>
+      <button id="menu-toggle" class="menu-toggle" aria-label="Toggle menu" data-cursor>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.6" stroke="currentColor"><path stroke-linecap="round" d="M3.75 9h16.5m-16.5 6.75h16.5" /></svg>
+      </button>
+    </div>
+    <div id="mobile-menu" class="mobile-menu">
+      <a href="#about">About</a>
+      <a href="#skills">Skills</a>
+      <a href="#work">Work</a>
+      <a href="#reviews">Reviews</a>
+      <a href="#contact">Contact</a>
+    </div>
+  </nav>
+
+  <main id="top">
+    <!-- ===== Hero ===== -->
+    <header class="hero" id="hero">
+      <canvas id="hero-canvas" aria-hidden="true"></canvas>
+      <div class="container hero-inner">
+        <span class="hero-status" data-reveal>
+          <span class="dot"></span> Available for select work · Associate SDE @ BDH
+        </span>
+        <h1 data-reveal>
+          I build software that<br />
+          <span class="grad">raises what a business<br />is capable of.</span>
+        </h1>
+        <p class="hero-sub" data-reveal>
+          Krishna Pratap Singh — software developer specialising in
+          <strong>fast, high-craft web apps &amp; products</strong>.
+          My promise: the best quality, in the shortest time.
+        </p>
+        <div class="hero-actions" data-reveal>
+          <a href="#work" class="btn btn-primary" data-magnetic data-cursor>See the work <span class="arrow">→</span></a>
+          <a href="#contact" class="btn btn-ghost" data-magnetic data-cursor>Start a project</a>
+        </div>
+        <div class="hero-meta" data-reveal-stagger>
+          <div class="stat"><div class="num">4+</div><div class="label">Years shipping</div></div>
+          <div class="stat"><div class="num">&lt;500ms</div><div class="label">Load I chase</div></div>
+          <div class="stat"><div class="num">100%</div><div class="label">Energy, every task</div></div>
+        </div>
+      </div>
+      <div class="scroll-cue" aria-hidden="true"><span>scroll</span><span class="line"></span></div>
+    </header>
+
+    <!-- ===== Philosophy marquee ===== -->
+    <div class="marquee" aria-hidden="true">
+      <div class="marquee-track" id="marquee-track"></div>
+    </div>
+
+    <!-- ===== About ===== -->
+    <section class="section" id="about">
+      <div class="container about-grid">
+        <div class="about-body">
+          <span class="eyebrow" data-reveal>01 — Who I am</span>
+          <h2 class="section-title" data-reveal>Cool and calm most of the time. <span class="grad">Full intensity</span> when it counts.</h2>
+          <p data-reveal>
+            I'm a software developer who treats technology as an <strong>amplifier of life</strong> —
+            not just a deliverable. I don't hand over a product; I raise what a business is
+            <strong>capable</strong> of: more reach, more involvement, more intensity.
+          </p>
+          <p data-reveal>
+            Right now I'm an Associate Software Engineer at BDH IT Solutions, where I built
+            <strong>WaveTag</strong> — an anonymous vehicle-contact system with a sub-500ms scanner
+            experience and an edge gateway resolving QR tags in under 50ms. Before that, React
+            dashboards for 100+ users, data-viz at scale, and an ML backend at DRDO.
+          </p>
+          <p data-reveal>
+            The way I work is single-pointed: <strong>total focus</strong> on the thing that matters
+            most, because focusing on the right point produces the most favourable outcome.
+          </p>
+          <p class="about-signature" data-reveal>“Every second counts — so don't just build the product, live it.”</p>
+        </div>
+        <aside class="focus-card" data-reveal>
+          <h3>How I operate</h3>
+          <div class="focus-list">
+            <div class="focus-item"><span class="idx">01</span><div><h4>Ship fast, learn faster</h4><p>Deploy fast so the idea meets the real world sooner.</p></div></div>
+            <div class="focus-item"><span class="idx">02</span><div><h4>Best quality, shortest time</h4><p>Compress the timeline, never the craft.</p></div></div>
+            <div class="focus-item"><span class="idx">03</span><div><h4>The work is the standard</h4><p>It has to look right to my own eye first.</p></div></div>
+            <div class="focus-item"><span class="idx">04</span><div><h4>Total focus wins</h4><p>Leverage over effort — attention on the point that matters.</p></div></div>
+            <div class="focus-item"><span class="idx">05</span><div><h4>Enable, don't just build</h4><p>Tech as an amplifier, not just a hand-off.</p></div></div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ===== Skills ===== -->
+    <section class="section" id="skills">
+      <div class="container">
+        <span class="eyebrow" data-reveal>02 — The toolkit</span>
+        <h2 class="section-title" data-reveal>Everything I need to <span class="grad">build &amp; scale</span> the whole product.</h2>
+        <p class="lead" data-reveal>From pixels to pipelines — frontend craft, solid backends, cloud, and the data layer.</p>
+        <div class="skills-grid" id="skills-grid"></div>
+      </div>
+    </section>
+
+    <!-- ===== Work / Projects ===== -->
+    <section class="section" id="work">
+      <div class="container">
+        <span class="eyebrow" data-reveal>03 — Selected work</span>
+        <h2 class="section-title" data-reveal>Proof, not <span class="grad">promises.</span></h2>
+        <p class="lead" data-reveal>A few things I've shipped — real systems, real constraints, real users.</p>
+        <div class="projects-list" id="projects-list"></div>
+      </div>
+    </section>
+
+    <!-- ===== Reviews ===== -->
+    <section class="section" id="reviews">
+      <div class="container">
+        <span class="eyebrow" data-reveal>04 — Kind words</span>
+        <h2 class="section-title" data-reveal>People I've <span class="grad">built with.</span></h2>
+        <p class="lead" data-reveal>Placeholder testimonials — swap in real client quotes from <code>src/js/data/reviews.js</code>.</p>
+        <div class="reviews-track" id="reviews-track"></div>
+      </div>
+    </section>
+
+    <!-- ===== Contact ===== -->
+    <section class="section contact" id="contact">
+      <div class="container container-narrow">
+        <span class="eyebrow" data-reveal style="justify-content:center">05 — The next move</span>
+        <h2 class="section-title" data-reveal>Got something worth building?</h2>
+        <p class="contact-huge" data-reveal>
+          <a href="mailto:krishna191217@gmail.com" data-cursor>krishna191217@gmail.com</a>
+        </p>
+        <div class="contact-actions" data-reveal>
+          <button class="btn btn-primary" id="copy-email" data-magnetic data-cursor>Copy email <span class="arrow">⧉</span></button>
+          <a class="btn btn-ghost" href="/Krishna_Pratap_Singh_Resume.pdf" download data-magnetic data-cursor>Download résumé ↓</a>
+        </div>
+        <div class="contact-socials" data-reveal-stagger>
+          <a href="https://github.com/krishna99dev" target="_blank" rel="noopener noreferrer" data-cursor>◆ GitHub · krishna99dev</a>
+          <a href="mailto:krishna191217@gmail.com" data-cursor>◆ krishna191217@gmail.com</a>
+          <a href="tel:+917017737354" data-cursor>◆ +91 70177 37354</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ===== Footer ===== -->
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <p class="footer-copy">© <span id="year"></span> <strong>Krishna Pratap Singh</strong> · Built with total focus.</p>
+      <div class="footer-links">
+        <a href="https://github.com/krishna99dev" target="_blank" rel="noopener noreferrer" data-cursor>GitHub</a>
+        <a href="mailto:krishna191217@gmail.com" data-cursor>Email</a>
+        <a href="#top" data-cursor>Back to top ↑</a>
+      </div>
+    </div>
+  </footer>
+
+  <button id="back-to-top" class="back-to-top" aria-label="Back to top" data-cursor>
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" /></svg>
+  </button>
+
+  <div class="copy-toast" id="copy-toast">Copied to clipboard ✓</div>
+
+  <script type="module" src="/src/js/main.js"></script>
+</body>
+</html>
