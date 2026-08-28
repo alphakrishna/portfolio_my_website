@@ -24,12 +24,23 @@ body {
   min-height: 100vh;
 }
 
+/* Full-page starfield canvas (injected by JS): fixed behind all content so
+   the cosmic backdrop continues from the hero down to the footer. */
+.stars-bg {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -2;
+  pointer-events: none;
+}
+
 /* Ambient background field: subtle radial nebulae + grain, fixed */
 body::before {
   content: "";
   position: fixed;
   inset: 0;
-  z-index: -2;
+  z-index: -3;
   background:
     radial-gradient(60vw 60vw at 78% -10%, rgba(124, 92, 255, 0.16), transparent 60%),
     radial-gradient(50vw 50vw at 12% 8%, rgba(34, 211, 238, 0.1), transparent 55%),

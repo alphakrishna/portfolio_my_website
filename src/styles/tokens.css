@@ -82,7 +82,7 @@
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 
   /* --- Layout --- */
-  --container: 1180px;
+  --container: 1500px;
   --container-narrow: 760px;
   --gutter: clamp(1.2rem, 5vw, 3rem);
   --nav-h: 76px;

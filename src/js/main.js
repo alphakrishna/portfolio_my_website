@@ -6,6 +6,7 @@ import { skills } from "./data/skills.js";
 import { projects } from "./data/projects.js";
 import { reviews } from "./data/reviews.js";
 import { initParticles } from "./lib/particles.js";
+import { initStarfield } from "./lib/starfield.js";
 import { initCursor, initTilt } from "./lib/cursor.js";
 
 const $ = (s, ctx = document) => ctx.querySelector(s);
@@ -38,6 +39,7 @@ function renderSkills() {
         <div class="skill-group-head">
           <span class="ico">${g.icon}</span>
           <h3>${g.title}</h3>
+          <span class="count">${String(g.items.length).padStart(2, "0")}</span>
         </div>
         <div class="chips">
           ${g.items.map((i) => `<span class="chip" data-cursor>${i}</span>`).join("")}
@@ -242,6 +244,8 @@ function boot() {
   // interactions that must run AFTER dynamic nodes exist
   initCursor();
   initTilt();
+
+  initStarfield();
 
   const canvas = $("#hero-canvas");
   if (canvas) initParticles(canvas);

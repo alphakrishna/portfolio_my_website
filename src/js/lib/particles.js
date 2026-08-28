@@ -89,8 +89,8 @@ export function initParticles(canvas) {
     // Weighted to the right / lower area so the left-side copy stays clear.
     const all = [
       {
-        // Saturn-like ringed planet, lower-left
-        ax: W * (narrow ? 0.17 : 0.12), ay: H * (narrow ? 0.82 : 0.78),
+        // Saturn-like ringed planet, hard against the lower-left edge (clear of the copy)
+        ax: W * (narrow ? 0.12 : 0.05), ay: H * (narrow ? 0.86 : 0.86),
         orbitR: min * 0.02, orbitA: 0.6, orbitSpeed: 0.0016,
         r: clamp(min * 0.055, 20, 54),
         body: [124, 92, 255], ring: [34, 211, 238],
@@ -129,8 +129,8 @@ export function initParticles(canvas) {
     const narrow = L.narrow;
     scene = {
       sun: {
-        x: W * (narrow ? 0.2 : 0.16),
-        y: H * (narrow ? 0.12 : 0.22),
+        x: W * (narrow ? 0.14 : 0.05),
+        y: H * (narrow ? 0.1 : 0.14),
         r: clamp(min * 0.05, 16, 46), depth: 0.25,
       },
       moon: {
@@ -190,7 +190,7 @@ export function initParticles(canvas) {
     const c = s.getContext("2d");
     c.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-    // 1) lit disc
+    // 1) lit disc (light from upper-left — fat side is on the left)
     const g = c.createRadialGradient(cx - r * 0.3, cy - r * 0.35, r * 0.15, cx, cy, r * 1.02);
     g.addColorStop(0, "rgba(244,247,255,1)");
     g.addColorStop(0.6, `rgba(${MOON_LIGHT[0]},${MOON_LIGHT[1]},${MOON_LIGHT[2]},0.95)`);
@@ -223,7 +223,7 @@ export function initParticles(canvas) {
     }
 
     // 2) carve the crescent — an equal-radius disc offset to the right leaves a
-    //    "C" opening right (fat on the left), matching the reference.
+    //    "C" opening right (fat on the left).
     //    NB: destination-out erases by the fill's alpha, so force fully opaque.
     c.globalCompositeOperation = "destination-out";
     c.fillStyle = "rgba(0,0,0,1)";
@@ -444,6 +444,144 @@ export function initParticles(canvas) {
       const half = moonSprite.half;
       ctx.drawImage(moonSprite.canvas, x - half, y - half, moonSprite.cssSize, moonSprite.cssSize);
     }
+
+    // the capped fisherman, seated on the crescent, facing right
+    drawFisherman(x, y, m.r);
+  }
+
+  /* ---- lone fisherman: a capped man in profile, facing right, perched on the
+         lower-left EDGE of the crescent with his legs dangling over. Both arms
+         reach forward to a rod that angles up-right; the line drops straight
+         down into cyan water waves below. Graded into the theme — a violet body
+         with a cyan glow — so it reads over both the bright crescent and the
+         dark opening. Coords are in moon-radius units from the moon centre
+         (X right, Y down); scales at every resolution. ---- */
+  function drawFisherman(cx, cy, r) {
+    const X = (dx) => cx + (dx + 0.68) * r;  // nudge the whole figure right
+    const Y = (dy) => cy + (dy + 0.24) * r + 1;  // nudge down (+1px)
+    const GLOW = "rgba(34,211,238,0.34)";   // cyan halo
+    const ROD = "rgba(214,184,142,0.96)";   // warm rod tone
+
+    ctx.save();
+    ctx.lineJoin = "round";
+    ctx.lineCap = "round";
+
+    // graded body: cyan-cool at the top, deep violet at the bottom — used for
+    // every core stroke/fill so the whole figure reads as one cohesive shape.
+    const CORE = ctx.createLinearGradient(X(-0.5), Y(-0.45), X(0.1), Y(1.0));
+    CORE.addColorStop(0, "rgba(120,210,245,0.97)");
+    CORE.addColorStop(0.45, "rgba(148,118,252,0.97)");
+    CORE.addColorStop(1, "rgba(116,78,226,0.97)");
+
+    // a limb = a polyline stroked wide-and-soft (cyan glow) then the graded core
+    function limb(pts, w) {
+      ctx.beginPath();
+      ctx.moveTo(X(pts[0][0]), Y(pts[0][1]));
+      for (let i = 1; i < pts.length; i++) ctx.lineTo(X(pts[i][0]), Y(pts[i][1]));
+      ctx.strokeStyle = GLOW;
+      ctx.lineWidth = Math.max(4, r * (w + 0.05));
+      ctx.stroke();
+      ctx.strokeStyle = CORE;
+      ctx.lineWidth = Math.max(2, r * w);
+      ctx.stroke();
+    }
+
+    // far leg + foot (behind) — dangling over the edge
+    limb([[-0.54, 0.50], [-0.14, 0.60], [-0.18, 0.94]], 0.10);  // far leg
+    limb([[-0.18, 0.94], [-0.05, 0.98]], 0.07);                 // far foot
+
+    // far arm (behind), reaching to the grip
+    limb([[-0.30, 0.06], [-0.08, 0.12], [0.14, 0.15]], 0.075);
+
+    // torso (seated, leaning slightly forward: hip → shoulder)
+    limb([[-0.52, 0.50], [-0.30, 0.04]], 0.20);
+
+    // near leg + foot (in front) — dangling over the edge
+    limb([[-0.50, 0.50], [-0.06, 0.56], [-0.08, 0.92]], 0.11);  // near leg
+    limb([[-0.08, 0.92], [0.07, 0.95]], 0.08);                  // near foot
+
+    // near arm, reaching to the grip
+    limb([[-0.30, 0.04], [-0.08, 0.16], [0.14, 0.20]], 0.09);
+    // neck
+    limb([[-0.30, 0.02], [-0.22, -0.10]], 0.11);
+
+    // hands gripping the rod
+    ctx.beginPath(); ctx.arc(X(0.15), Y(0.18), 0.06 * r, 0, Math.PI * 2);
+    ctx.fillStyle = GLOW; ctx.fill();
+    ctx.beginPath(); ctx.arc(X(0.15), Y(0.18), 0.045 * r, 0, Math.PI * 2);
+    ctx.fillStyle = CORE; ctx.fill();
+
+    // head — glow halo, graded disc, then a small right-facing nose profile
+    const hx = -0.17, hy = -0.20, hr = 0.145 * r;
+    ctx.beginPath(); ctx.arc(X(hx), Y(hy), hr + Math.max(2, r * 0.04), 0, Math.PI * 2);
+    ctx.fillStyle = GLOW; ctx.fill();
+    ctx.fillStyle = CORE;
+    ctx.beginPath(); ctx.arc(X(hx), Y(hy), hr, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath();                                   // nose (profile points right)
+    ctx.moveTo(X(hx + 0.10), Y(hy - 0.02));
+    ctx.lineTo(X(hx + 0.19), Y(hy + 0.03));
+    ctx.lineTo(X(hx + 0.09), Y(hy + 0.07));
+    ctx.closePath(); ctx.fill();
+
+    // baseball cap — crown dome, brim pointing right (forward), top button
+    ctx.beginPath();
+    ctx.arc(X(-0.18), Y(-0.23), 0.175 * r, Math.PI * 0.82, Math.PI * 2.02);
+    ctx.closePath(); ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(X(-0.08), Y(-0.29));
+    ctx.lineTo(X(0.28), Y(-0.32));
+    ctx.lineTo(X(0.28), Y(-0.27));
+    ctx.lineTo(X(-0.06), Y(-0.23));
+    ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.arc(X(-0.19), Y(-0.375), 0.028 * r, 0, Math.PI * 2); ctx.fill();
+
+    // rod — warm tone, curving up to the right
+    ctx.beginPath();
+    ctx.moveTo(X(0.14), Y(0.22));
+    ctx.quadraticCurveTo(X(0.52), Y(-0.26), X(0.80), Y(-0.62));
+    ctx.strokeStyle = GLOW;
+    ctx.lineWidth = Math.max(3, r * 0.05); ctx.stroke();
+    ctx.strokeStyle = ROD;
+    ctx.lineWidth = Math.max(1.4, r * 0.022); ctx.stroke();
+    // line guides along the rod + a defined tip
+    ctx.lineWidth = Math.max(1, r * 0.012);
+    for (const [gx, gy, gr] of [[0.43, -0.14, 0.028], [0.62, -0.39, 0.024], [0.80, -0.62, 0.03]]) {
+      ctx.beginPath(); ctx.arc(X(gx), Y(gy), gr * r, 0, Math.PI * 2); ctx.stroke();
+    }
+    // reel at the grip
+    ctx.beginPath(); ctx.arc(X(0.12), Y(0.25), 0.05 * r, 0, Math.PI * 2);
+    ctx.fillStyle = CORE; ctx.fill();
+
+    // fishing line straight down from the rod tip to the water
+    ctx.beginPath();
+    ctx.moveTo(X(0.80), Y(-0.62));
+    ctx.lineTo(X(0.81), Y(1.00));
+    ctx.strokeStyle = "rgba(220,235,255,0.55)";
+    ctx.lineWidth = Math.max(1, r * 0.01); ctx.stroke();
+
+    // water — soft entry ripple, a bright glint, and two wavy cyan lines
+    ctx.beginPath(); ctx.arc(X(0.81), Y(1.03), 0.12 * r, 0, Math.PI * 2);
+    ctx.fillStyle = "rgba(90,210,240,0.14)"; ctx.fill();
+    ctx.strokeStyle = "rgba(200,240,255,0.35)";
+    ctx.lineWidth = Math.max(1, r * 0.012);
+    ctx.beginPath(); ctx.moveTo(X(0.66), Y(1.02)); ctx.lineTo(X(0.98), Y(1.02)); ctx.stroke();
+    ctx.strokeStyle = "rgba(90,210,240,0.6)";
+    ctx.lineWidth = Math.max(1.4, r * 0.02);
+    for (let row = 0; row < 2; row++) {
+      const wy = 1.02 + row * 0.11;
+      ctx.beginPath();
+      ctx.moveTo(X(0.30), Y(wy));
+      const amp = 0.045, seg = 0.14;
+      let k = 0;
+      for (let wx = 0.30; wx < 1.15; wx += seg) {
+        const dir = (k % 2 === 0) ? -1 : 1;
+        ctx.quadraticCurveTo(X(wx + seg / 2), Y(wy + dir * amp), X(wx + seg), Y(wy));
+        k++;
+      }
+      ctx.stroke();
+    }
+
+    ctx.restore();
   }
 
   /* ---- shooting stars ---- */
