@@ -13,6 +13,9 @@ import { initProjectRope } from "./lib/projectRope.js";
 
 const $ = (s, ctx = document) => ctx.querySelector(s);
 const $$ = (s, ctx = document) => [...ctx.querySelectorAll(s)];
+// Prefix a public asset path with Vite's base so images resolve on GitHub Pages
+// subpaths (and in dev) instead of 404-ing from the domain root.
+const asset = (p) => `${import.meta.env.BASE_URL}${String(p).replace(/^\//, "")}`;
 const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 let lenisInstance = null; // captured in boot so the review popup can lock/unlock scroll
 
@@ -66,7 +69,7 @@ function renderProjects() {
         .join("");
       const side = i % 2 === 0 ? "left" : "right";
       const visualStyle = p.image
-        ? ` style="--project-img:url('${p.image}')${p.imagePos ? `;--project-pos:${p.imagePos}` : ""}"`
+        ? ` style="--project-img:url('${asset(p.image)}')${p.imagePos ? `;--project-pos:${p.imagePos}` : ""}"`
         : "";
       const classes = ["project", p.image && "has-img", p.imageContain && "img-contain", p.textOnly && "text-only"]
         .filter(Boolean)
@@ -89,7 +92,7 @@ function renderProjects() {
           <div class="project-detail">
             ${
               p.photo
-                ? `<figure class="project-photo"><img src="${p.photo}" alt="${p.title} award" loading="lazy" />${p.photoCaption ? `<figcaption>${p.photoCaption}</figcaption>` : ""}</figure>`
+                ? `<figure class="project-photo"><img src="${asset(p.photo)}" alt="${p.title} award" loading="lazy" />${p.photoCaption ? `<figcaption>${p.photoCaption}</figcaption>` : ""}</figure>`
                 : ""
             }
             ${
