@@ -4,14 +4,17 @@
 import Lenis from "lenis";
 import { skills } from "./data/skills.js";
 import { projects } from "./data/projects.js";
+import { caseStudies } from "./data/caseStudies.js";
 import { reviews } from "./data/reviews.js";
 import { initParticles } from "./lib/particles.js";
 import { initStarfield } from "./lib/starfield.js";
 import { initCursor, initTilt } from "./lib/cursor.js";
+import { initProjectRope } from "./lib/projectRope.js";
 
 const $ = (s, ctx = document) => ctx.querySelector(s);
 const $$ = (s, ctx = document) => [...ctx.querySelectorAll(s)];
 const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+let lenisInstance = null; // captured in boot so the review popup can lock/unlock scroll
 
 /* ---------- Render: marquee ---------- */
 function renderMarquee() {
@@ -61,21 +64,68 @@ function renderProjects() {
       ]
         .filter(Boolean)
         .join("");
-      return `
-      <article class="project ${p.featured ? "featured" : ""}" data-reveal>
-        <div class="project-visual">
+      const side = i % 2 === 0 ? "left" : "right";
+      const visualStyle = p.image
+        ? ` style="--project-img:url('${p.image}')${p.imagePos ? `;--project-pos:${p.imagePos}` : ""}"`
+        : "";
+      const classes = ["project", p.image && "has-img", p.imageContain && "img-contain", p.textOnly && "text-only"]
+        .filter(Boolean)
+        .join(" ");
+      const visual = p.textOnly
+        ? ""
+        : `
+        <div class="project-visual"${visualStyle}>
           <div class="grid-lines"></div>
           <span class="glyph">${p.glyph}</span>
-        </div>
+        </div>`;
+      return `
+      <article class="${classes}" data-side="${side}" data-reveal>${visual}
         <div class="project-body">
-          <span class="project-index">PROJECT ${String(i + 1).padStart(2, "0")}</span>
-          <h3>${p.title}</h3>
-          <span class="role">${p.role}</span>
-          <p>${p.blurb}</p>
-          <div class="tech">
-            ${p.tech.map((t) => `<span class="chip" data-cursor>${t}</span>`).join("")}
+          <div class="project-head">
+            <span class="project-index">PROJECT ${String(i + 1).padStart(2, "0")}</span>
+            <h3>${p.title}</h3>
+            <span class="role">${p.role}</span>
           </div>
-          ${links ? `<div class="links">${links}</div>` : ""}
+          <div class="project-detail">
+            ${
+              p.photo
+                ? `<figure class="project-photo"><img src="${p.photo}" alt="${p.title} award" loading="lazy" />${p.photoCaption ? `<figcaption>${p.photoCaption}</figcaption>` : ""}</figure>`
+                : ""
+            }
+            ${
+              p.points
+                ? `<ul class="project-points">${p.points.map((pt) => `<li>${pt}</li>`).join("")}</ul>`
+                : `<p>${p.blurb}</p>`
+            }
+            <div class="tech">
+              ${p.tech.map((t) => `<span class="chip" data-cursor>${t}</span>`).join("")}
+            </div>
+            ${links ? `<div class="links">${links}</div>` : ""}
+          </div>
+        </div>
+      </article>`;
+    })
+    .join("");
+}
+
+/* ---------- Render: case studies ---------- */
+function renderCaseStudies() {
+  const grid = $("#cases-grid");
+  if (!grid) return;
+  grid.innerHTML = caseStudies
+    .map((c, i) => {
+      return `
+      <article class="case-study" data-case="${i}" tabindex="0" role="button" aria-haspopup="dialog" data-cursor data-reveal>
+        <div class="case-head">
+          <span class="case-context">${c.context}</span>
+          <span class="case-num">${String(i + 1).padStart(2, "0")}</span>
+        </div>
+        <h3>${c.title}</h3>
+        <p class="case-teaser">${c.problem}</p>
+        <div class="case-foot">
+          <div class="tech">
+            ${c.tech.map((t) => `<span class="chip" data-cursor>${t}</span>`).join("")}
+          </div>
         </div>
       </article>`;
     })
@@ -87,14 +137,14 @@ function renderReviews() {
   const track = $("#reviews-track");
   if (!track) return;
   track.innerHTML = reviews
-    .map((r) => {
+    .map((r, i) => {
       const initials = r.name
         .split(" ")
         .map((w) => w[0])
         .slice(0, 2)
         .join("");
       return `
-      <article class="review" data-reveal>
+      <article class="review" data-review="${i}" tabindex="0" role="button" aria-haspopup="dialog" data-cursor data-reveal>
         <div class="quote-mark">“</div>
         <blockquote>${r.quote}</blockquote>
         <div class="who">
@@ -107,6 +157,156 @@ function renderReviews() {
       </article>`;
     })
     .join("");
+}
+
+/* ---------- Shared popup used by reviews + case studies ---------- */
+function createModal(ariaLabel) {
+  const modal = document.createElement("div");
+  modal.className = "modal";
+  modal.setAttribute("aria-hidden", "true");
+  modal.innerHTML = `
+    <div class="modal-backdrop" data-modal-close></div>
+    <div class="modal-panel" role="dialog" aria-modal="true" aria-label="${ariaLabel}">
+      <button class="modal-close" type="button" aria-label="Close" data-modal-close>&times;</button>
+      <div class="modal-body"></div>
+    </div>`;
+  document.body.appendChild(modal);
+
+  const bodyEl = modal.querySelector(".modal-body");
+  const closeBtn = modal.querySelector(".modal-close");
+  const isOpen = () => modal.classList.contains("open");
+  let lastFocused = null;
+
+  const open = (html) => {
+    bodyEl.innerHTML = html;
+    lastFocused = document.activeElement;
+    modal.classList.add("open");
+    modal.setAttribute("aria-hidden", "false");
+    document.body.classList.add("modal-open");
+    lenisInstance?.stop(); // freeze smooth scroll behind the popup
+    closeBtn.focus();
+  };
+  const close = () => {
+    modal.classList.remove("open");
+    modal.setAttribute("aria-hidden", "true");
+    document.body.classList.remove("modal-open");
+    lenisInstance?.start();
+    if (lastFocused) lastFocused.focus();
+  };
+
+  modal.addEventListener("click", (e) => {
+    if (e.target.closest("[data-modal-close]")) close();
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && isOpen()) close();
+  });
+  return { open, close, isOpen };
+}
+
+// Wire a grid of clickable cards to a popup: click / Enter / Space opens it.
+function wireCardPopup(container, cardSelector, dataKey, buildHTML) {
+  if (!container) return;
+  const modal = createModal(buildHTML.label || "Details");
+  const openFrom = (el) => modal.open(buildHTML(Number(el.dataset[dataKey])));
+  container.addEventListener("click", (e) => {
+    const card = e.target.closest(cardSelector);
+    if (card) openFrom(card);
+  });
+  container.addEventListener("keydown", (e) => {
+    if (e.key !== "Enter" && e.key !== " ") return;
+    const card = e.target.closest(cardSelector);
+    if (!card) return;
+    e.preventDefault();
+    openFrom(card);
+  });
+}
+
+/* ---------- Reviews: click a card to open a popup ---------- */
+function initReviewModal() {
+  const html = (i) => {
+    const r = reviews[i];
+    if (!r) return "";
+    const initials = r.name.split(" ").map((w) => w[0]).slice(0, 2).join("");
+    return `
+      <div class="quote-mark">“</div>
+      <blockquote class="modal-quote">${r.quote}</blockquote>
+      <div class="who">
+        <span class="avatar">${initials}</span>
+        <div>
+          <div class="name">${r.name}</div>
+          <div class="role">${r.role}</div>
+        </div>
+      </div>`;
+  };
+  html.label = "Testimonial";
+  wireCardPopup($("#reviews-track"), ".review", "review", html);
+}
+
+/* ---------- Case studies: click a card to open the full write-up ---------- */
+function initCaseModal() {
+  const html = (i) => {
+    const c = caseStudies[i];
+    if (!c) return "";
+    const link = c.link
+      ? `<a class="case-link" href="${c.link}" target="_blank" rel="noopener" data-cursor>View live ↗</a>`
+      : "";
+    return `
+      <span class="case-context">${c.context}</span>
+      <h3 class="modal-title">${c.title}</h3>
+      <div class="case-cols case-cols-stack">
+        <div class="case-col"><span class="case-label">Problem</span><p>${c.problem}</p></div>
+        <div class="case-col"><span class="case-label">Approach</span><p>${c.approach}</p></div>
+        <div class="case-col"><span class="case-label">Outcome</span><p>${c.outcome}</p></div>
+      </div>
+      <div class="case-foot">
+        <div class="tech">${c.tech.map((t) => `<span class="chip">${t}</span>`).join("")}</div>
+        ${link}
+      </div>`;
+  };
+  html.label = "Case study";
+  wireCardPopup($("#cases-grid"), ".case-study", "case", html);
+}
+
+/* ---------- Projects: click to expand detail ---------- */
+function initProjectExpand() {
+  const cards = $$(".projects-list .project");
+  const closeAll = (except) =>
+    cards.forEach((c) => {
+      if (c !== except && c.classList.contains("open")) {
+        c.classList.remove("open");
+        c.setAttribute("aria-expanded", "false");
+      }
+    });
+
+  cards.forEach((card) => {
+    card.setAttribute("tabindex", "0");
+    card.setAttribute("aria-expanded", "false");
+    const toggle = () => {
+      const willOpen = !card.classList.contains("open");
+      closeAll(card); // accordion: keep at most one card open so the stack stays short
+      card.classList.toggle("open", willOpen);
+      card.setAttribute("aria-expanded", willOpen ? "true" : "false");
+    };
+    card.addEventListener("click", (e) => {
+      if (e.target.closest("a")) return; // let real links work without toggling
+      toggle();
+    });
+    card.addEventListener("keydown", (e) => {
+      if (e.target.closest("a")) return;
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        toggle();
+      }
+    });
+  });
+
+  // A click anywhere outside the cards (or Escape) closes whatever is open.
+  document.addEventListener("click", (e) => {
+    if (!e.target.closest(".projects-list .project")) closeAll(null);
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeAll(null);
+  });
 }
 
 /* ---------- Smooth scroll (Lenis) ---------- */
@@ -192,7 +392,7 @@ function initNav() {
     },
     { threshold: 0.5 }
   );
-  $$("#about, #skills, #work, #reviews").forEach((s) => io.observe(s));
+  $$("#about, #skills, #work, #cases, #reviews").forEach((s) => io.observe(s));
 }
 
 /* ---------- Mobile menu ---------- */
@@ -233,9 +433,10 @@ function boot() {
   renderMarquee();
   renderSkills();
   renderProjects();
+  renderCaseStudies();
   renderReviews();
 
-  initSmoothScroll();
+  lenisInstance = initSmoothScroll();
   initReveals();
   initNav();
   initMobileMenu();
@@ -244,6 +445,10 @@ function boot() {
   // interactions that must run AFTER dynamic nodes exist
   initCursor();
   initTilt();
+  initProjectExpand();
+  initProjectRope();
+  initReviewModal();
+  initCaseModal();
 
   initStarfield();
 

@@ -37,16 +37,28 @@
 
 .section-title {
   font-size: var(--fs-700);
-  margin-top: var(--space-4);
-  max-width: 18ch;
+  font-weight: var(--fw-bold);
+  line-height: 1.06;
+  letter-spacing: -0.035em;
+  margin-top: var(--space-5);
+  max-width: 20ch;
+  text-wrap: balance;
 }
-.section-title .grad { background: var(--accent-gradient); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.section-title .grad {
+  background: var(--accent-gradient-soft);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 4px 26px rgba(124, 92, 255, 0.32));
+}
 
 .lead {
   color: var(--text-muted);
   font-size: var(--fs-400);
+  line-height: 1.7;
   max-width: 54ch;
   margin-top: var(--space-4);
+  text-wrap: pretty;
 }
 
 /* ---------- Buttons ---------- */
@@ -117,11 +129,11 @@
   font-family: var(--font-display);
   font-weight: var(--fw-bold);
   letter-spacing: -0.02em;
-  font-size: var(--fs-400);
+  font-size: 1.35rem;
 }
 .nav-logo .mark {
-  width: 30px; height: 30px;
-  border-radius: 9px;
+  width: 34px; height: 34px;
+  border-radius: 10px;
   background: var(--accent-gradient);
   display: grid; place-items: center;
   color: #060814; font-family: var(--font-mono); font-weight: 700;
@@ -134,8 +146,10 @@
 }
 .nav-links a {
   position: relative;
-  font-family: var(--font-mono);
-  font-size: var(--fs-200);
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: var(--fw-medium);
+  letter-spacing: -0.01em;
   color: var(--text-muted);
   padding: 4px 0;
   transition: color var(--dur-fast) var(--ease-out);
@@ -501,77 +515,186 @@
 }
 
 /* ---------- Projects ---------- */
-.projects-list { margin-top: var(--space-8); display: grid; gap: var(--space-6); }
-.project {
+/* ---------- Projects: rope gallery ---------- */
+#work { padding-block: clamp(2.4rem, 4.5vw, 4rem); } /* tighter than default sections — this one runs long */
+.projects-rope { position: relative; margin-top: var(--space-5); padding-bottom: clamp(4.2rem, 6vw, 5.5rem); }
+.projects-list { display: flex; flex-direction: column; gap: clamp(0.4rem, 1vw, 0.85rem); }
+
+/* The light rope (generated SVG) sits behind the cards */
+.rope-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; z-index: 0; }
+.rope-base {
+  fill: none; stroke: var(--border-strong); stroke-width: 2;
+  stroke-linecap: round; vector-effect: non-scaling-stroke; opacity: 0.5;
+}
+.rope-glow {
+  fill: none; stroke: url(#ropeGrad); stroke-width: 3;
+  stroke-linecap: round; vector-effect: non-scaling-stroke;
+  filter: drop-shadow(0 0 5px rgba(124,92,255,0.75)) drop-shadow(0 0 13px rgba(34,211,238,0.4));
+}
+.rope-node {
+  fill: var(--bg-elevated); stroke: var(--border-strong); stroke-width: 1.5;
+  opacity: 0.6;
+  transition: fill var(--dur-base) var(--ease-out), opacity var(--dur-base) var(--ease-out), filter var(--dur-base) var(--ease-out);
+}
+.rope-node.lit {
+  fill: #dbeafe; stroke: var(--cyan); opacity: 1;
+  filter: drop-shadow(0 0 7px rgba(124,92,255,0.9)) drop-shadow(0 0 15px rgba(34,211,238,0.6));
+}
+
+/* Ship's wheel riding the glow's leading edge as the rope ignites */
+.rope-wheel {
+  fill: none;
+  stroke: var(--cyan-soft);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  opacity: 0;
+  filter: drop-shadow(0 0 6px rgba(34,211,238,0.65)) drop-shadow(0 0 14px rgba(124,92,255,0.5));
+  transition: filter var(--dur-base) var(--ease-out), stroke var(--dur-base) var(--ease-out);
+}
+.rope-wheel .rw-rim { stroke-width: 2; vector-effect: non-scaling-stroke; }
+.rope-wheel .rw-spokes line { vector-effect: non-scaling-stroke; }
+.rope-wheel .rw-hub,
+.rope-wheel .rw-handle { fill: var(--cyan-soft); stroke: none; }
+.rope-wheel.arrived {
+  stroke: #eaf6ff;
+  filter: drop-shadow(0 0 9px rgba(34,211,238,0.9)) drop-shadow(0 0 22px rgba(124,92,255,0.7));
+}
+.rope-wheel.arrived .rw-hub,
+.rope-wheel.arrived .rw-handle { fill: #eaf6ff; }
+
+/* Terminal "more to come" label the wheel meets at the rope's end */
+.rope-end-label {
+  fill: var(--text-faint);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  opacity: 0;
+  transition: opacity var(--dur-slow) var(--ease-out), fill var(--dur-base) var(--ease-out);
+}
+.rope-end-label.show { opacity: 0.9; }
+.rope-end-label.mix { fill: var(--cyan-soft); }
+
+/* Cards — compact image + title, alternating sides, subtle 3D tilt.
+   Prefixed with .projects-list so the tilt out-specifies [data-reveal].in. */
+.projects-list .project {
   position: relative;
-  display: grid;
-  grid-template-columns: 0.9fr 1.1fr;
-  gap: clamp(1.5rem, 4vw, 3.5rem);
+  z-index: 1;
+  cursor: pointer;
+  width: min(560px, 62%);
+  display: flex;
   align-items: center;
-  padding: clamp(1.5rem, 3vw, 2.5rem);
+  gap: clamp(0.9rem, 2vw, 1.5rem);
+  padding: clamp(0.65rem, 1.2vw, 0.95rem);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   background: var(--bg-glass);
   backdrop-filter: blur(8px);
-  overflow: hidden;
-  transition: border-color var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out);
+  transform-style: preserve-3d;
+  transition: transform var(--dur-base) var(--ease-out),
+              border-color var(--dur-base) var(--ease-out),
+              box-shadow var(--dur-base) var(--ease-out);
 }
-.project::before {
+.projects-list .project[data-side="left"] {
+  margin-right: auto;
+  transform: perspective(1200px) rotateY(7deg) rotateX(1.5deg);
+  transform-origin: left center;
+}
+.projects-list .project[data-side="right"] {
+  margin-left: auto;
+  flex-direction: row-reverse;
+  transform: perspective(1200px) rotateY(-7deg) rotateX(1.5deg);
+  transform-origin: right center;
+}
+.projects-list .project:hover {
+  transform: perspective(1200px) rotateY(0deg) translateZ(26px) scale(1.008);
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-lift);
+}
+.projects-list .project::before {
   content: "";
-  position: absolute;
-  inset: -1px;
-  border-radius: inherit;
-  padding: 1px;
-  background: radial-gradient(600px 200px at var(--mx, 50%) var(--my, 50%), rgba(124,92,255,0.5), transparent 60%);
+  position: absolute; inset: -1px;
+  border-radius: inherit; padding: 1px;
+  background: radial-gradient(320px 160px at var(--mx, 50%) var(--my, 50%), rgba(124,92,255,0.55), transparent 60%);
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite: xor; mask-composite: exclude;
   opacity: 0;
   transition: opacity var(--dur-base) var(--ease-out);
   pointer-events: none;
 }
-.project:hover::before { opacity: 1; }
-.project:hover { border-color: var(--border-strong); }
-.project:nth-child(even) .project-visual { order: 2; }
-.project.featured { grid-template-columns: 1fr; }
-.project.featured .project-visual { min-height: 260px; }
+.projects-list .project:hover::before { opacity: 1; }
+
+/* Lit — the glow front has reached this card */
+.projects-list .project.lit {
+  border-color: rgba(124,92,255,0.5);
+  box-shadow: 0 0 0 1px rgba(124,92,255,0.2), 0 14px 44px -18px rgba(124,92,255,0.55), 0 0 60px -22px rgba(34,211,238,0.45);
+}
+.projects-list .project.lit .project-visual { border-color: rgba(34,211,238,0.4); box-shadow: 0 0 22px -6px rgba(124,92,255,0.55); }
+.projects-list .project.lit .glyph { opacity: 1; }
 
 .project-visual {
   position: relative;
-  min-height: 200px;
+  flex: 0 0 auto;
+  width: clamp(68px, 8.5vw, 100px);
+  height: clamp(68px, 8.5vw, 100px);
   border-radius: var(--radius);
   border: 1px solid var(--border);
   background:
     radial-gradient(120% 100% at 20% 0%, rgba(124,92,255,0.22), transparent 55%),
     radial-gradient(120% 120% at 100% 100%, rgba(34,211,238,0.18), transparent 55%),
     var(--bg-elevated);
-  display: grid;
-  place-items: center;
-  overflow: hidden;
+  display: grid; place-items: center; overflow: hidden;
+  transition: border-color var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out);
+}
+/* Cards with a real screenshot go vertical: big image on top, then title, then info */
+.projects-list .project.has-img,
+.projects-list .project.has-img[data-side="left"],
+.projects-list .project.has-img[data-side="right"] {
+  flex-direction: column;
+  align-items: stretch;
+}
+.project.has-img .project-visual {
+  width: 100%;
+  height: clamp(88px, 10vw, 132px);
+  background-image: var(--project-img);
+  background-size: cover;
+  background-position: var(--project-pos, center);
+}
+.project.has-img .glyph { display: none; }
+/* Logo-style banner (dark logos on light art): show the whole logo on a white
+   plate instead of cropping it, so nothing gets cut and it stays legible. */
+.project.img-contain .project-visual {
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-color: #fff;
 }
 .project-visual .glyph {
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: clamp(3rem, 8vw, 6rem);
+  font-size: clamp(1.6rem, 4vw, 2.6rem);
   background: var(--accent-gradient);
   -webkit-background-clip: text; background-clip: text; color: transparent;
   opacity: 0.9;
   transition: transform var(--dur-slow) var(--ease-out);
 }
-.project:hover .project-visual .glyph { transform: scale(1.06) rotate(-2deg); }
+.project:hover .project-visual .glyph { transform: scale(1.08) rotate(-2deg); }
 .project-visual .grid-lines {
   position: absolute; inset: 0;
   background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px);
-  background-size: 34px 34px;
+  background-size: 22px 22px;
   opacity: 0.35;
   mask-image: radial-gradient(circle at 50% 50%, #000 30%, transparent 75%);
 }
+
+.project-body { min-width: 0; display: flex; flex-direction: column; }
 .project-index {
   font-family: var(--font-mono);
   font-size: var(--fs-100);
   color: var(--violet);
   letter-spacing: 0.2em;
 }
-.project h3 { font-size: var(--fs-600); margin-top: var(--space-3); }
+.project h3 { font-size: var(--fs-500); margin-top: var(--space-2); }
 .project .role {
   font-family: var(--font-mono);
   font-size: var(--fs-100);
@@ -580,9 +703,68 @@
   margin-top: var(--space-2);
   display: block;
 }
-.project p { color: var(--text-muted); margin-top: var(--space-4); font-size: var(--fs-300); }
-.project .tech { margin-top: var(--space-5); display: flex; flex-wrap: wrap; gap: var(--space-2); }
-.project .links { margin-top: var(--space-5); display: flex; gap: var(--space-5); }
+
+/* Click affordance — sits under the title, flips its label when open */
+.project-head::after {
+  content: "+ Details";
+  display: inline-block;
+  margin-top: var(--space-3);
+  font-family: var(--font-mono);
+  font-size: var(--fs-100);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  transition: color var(--dur-fast) var(--ease-out);
+}
+.project:hover .project-head::after { color: var(--cyan-soft); }
+.project.open .project-head::after { content: "\00d7 Close"; color: var(--cyan-soft); }
+
+/* Detail (blurb + tech + links) stays collapsed until the card is clicked open */
+.project-detail {
+  max-height: 0; opacity: 0; overflow: hidden; transform: translateY(4px);
+  transition: max-height var(--dur-slow) var(--ease-out),
+              opacity var(--dur-base) var(--ease-out),
+              transform var(--dur-base) var(--ease-out),
+              margin-top var(--dur-base) var(--ease-out);
+}
+.project.open .project-detail {
+  max-height: 700px; opacity: 1; transform: none; margin-top: var(--space-4);
+}
+.project-detail p { color: var(--text-muted); font-size: var(--fs-300); }
+.project-points { list-style: none; display: flex; flex-direction: column; gap: var(--space-2); text-align: left; }
+.project-points li {
+  position: relative; padding-left: 1.3rem;
+  color: var(--text-muted); font-size: var(--fs-300); line-height: 1.5;
+}
+.project-points li::before {
+  content: ""; position: absolute; left: 0; top: 0.55em;
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent-gradient);
+}
+/* Small in-card photo (e.g. an award moment): floated so the bullets wrap
+   beside it; clears back to full width for the tech + links rows below. */
+.project-photo {
+  float: right;
+  width: clamp(96px, 30%, 150px);
+  margin: 0 0 var(--space-3) var(--space-4);
+  text-align: center;
+}
+.project-photo img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius);
+  border: 1px solid var(--border-strong);
+}
+.project-photo figcaption {
+  margin-top: var(--space-2);
+  font-family: var(--font-mono);
+  font-size: var(--fs-100);
+  letter-spacing: 0.08em;
+  color: var(--text-faint);
+}
+.project .tech { clear: both; margin-top: var(--space-4); display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.project .links { margin-top: var(--space-4); display: flex; gap: var(--space-5); }
 .project .links a {
   font-family: var(--font-mono);
   font-size: var(--fs-200);
@@ -593,11 +775,27 @@
 }
 .project .links a:hover { color: var(--cyan-soft); border-bottom-color: var(--cyan); }
 
+/* Text-only card (no screenshot, no placeholder) — strong copy carries it.
+   Content stays visible (nothing to reveal on hover), title gets more presence,
+   and a gradient tick marks it as a deliberate statement rather than a gap. */
+.project.text-only .project-body { width: 100%; }
+.project.text-only h3 { font-size: var(--fs-600); }
+.project.text-only .project-index::before {
+  content: "";
+  display: inline-block;
+  width: 22px; height: 2px;
+  margin-right: 10px;
+  vertical-align: middle;
+  background: var(--accent-gradient);
+  border-radius: 2px;
+}
+/* text-only card uses the same click-to-open detail as every other card */
+
 /* ---------- Reviews ---------- */
 .reviews-track {
   margin-top: var(--space-8);
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
   gap: var(--space-5);
 }
 .review {
@@ -620,6 +818,239 @@
 }
 .review .who .name { font-weight: var(--fw-medium); }
 .review .who .role { font-size: var(--fs-100); color: var(--text-faint); font-family: var(--font-mono); }
+.review { cursor: pointer; }
+.review::after {
+  content: "Read →";
+  margin-top: var(--space-4);
+  font-family: var(--font-mono);
+  font-size: var(--fs-100);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  transition: color var(--dur-fast) var(--ease-out);
+}
+.review:hover::after { color: var(--cyan-soft); }
+
+/* Popup shared by reviews + case studies (opens on card click) */
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  padding: var(--gutter);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--dur-base) var(--ease-out), visibility var(--dur-base) var(--ease-out);
+}
+.modal.open { opacity: 1; visibility: visible; }
+.modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(3, 4, 8, 0.72);
+  backdrop-filter: blur(6px);
+}
+.modal-panel {
+  position: relative;
+  z-index: 1;
+  width: min(560px, 100%);
+  max-height: 85vh;
+  overflow: auto;
+  padding: clamp(1.7rem, 3.5vw, 2.8rem);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  background: var(--bg-elevated);
+  box-shadow: var(--shadow-lift);
+  transform: translateY(14px) scale(0.98);
+  transition: transform var(--dur-base) var(--ease-spring);
+}
+.modal.open .modal-panel { transform: none; }
+.modal-close {
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-4);
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  font-size: 1.4rem;
+  line-height: 1;
+  color: var(--text-muted);
+  transition: color var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
+}
+.modal-close:hover { color: var(--text); border-color: var(--border-strong); }
+
+/* Review content inside the popup */
+.modal-panel .quote-mark {
+  font-family: var(--font-display);
+  font-size: 3.4rem;
+  line-height: 0.6;
+  color: var(--violet);
+  opacity: 0.6;
+}
+.modal-quote {
+  color: var(--text);
+  font-size: var(--fs-500);
+  line-height: 1.5;
+  margin-top: var(--space-4);
+}
+.modal-panel .who {
+  margin-top: var(--space-6);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+.modal-panel .avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--accent-gradient);
+  color: #060814;
+  font-family: var(--font-display);
+  font-weight: 700;
+}
+.modal-panel .name { font-weight: var(--fw-medium); }
+.modal-panel .role {
+  font-size: var(--fs-100);
+  color: var(--text-faint);
+  font-family: var(--font-mono);
+}
+
+/* Case-study content inside the popup */
+.modal-title {
+  font-size: var(--fs-500);
+  letter-spacing: -0.02em;
+  margin-top: var(--space-3);
+}
+.modal-panel .case-cols {
+  grid-template-columns: 1fr;
+  gap: var(--space-5);
+  margin-top: var(--space-5);
+}
+.modal-panel .case-foot {
+  justify-content: space-between;
+  align-items: center;
+  margin-top: var(--space-6);
+}
+
+body.modal-open { overflow: hidden; }
+
+/* ---------- Case studies (compact cards, full write-up in a popup) ---------- */
+.cases-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+  gap: var(--space-5);
+  margin-top: var(--space-7);
+}
+.case-study {
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--bg-glass);
+  backdrop-filter: blur(8px);
+  padding: clamp(1.3rem, 2.4vw, 1.9rem);
+  transition: border-color var(--dur-base) var(--ease-out),
+              box-shadow var(--dur-base) var(--ease-out),
+              transform var(--dur-base) var(--ease-out);
+}
+.case-study:hover {
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-card);
+  transform: translateY(-6px);
+}
+.case-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+.case-context {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: var(--fs-100);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--cyan-soft);
+}
+.case-num {
+  flex: 0 0 auto;
+  font-family: var(--font-mono);
+  font-size: var(--fs-300);
+  color: var(--text-faint);
+}
+.case-study h3 {
+  font-size: var(--fs-500);
+  letter-spacing: -0.02em;
+  margin-top: var(--space-4);
+}
+.case-teaser {
+  flex: 1;
+  margin-top: var(--space-3);
+  color: var(--text-muted);
+  font-size: var(--fs-300);
+  line-height: 1.6;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.case-foot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+}
+.case-foot .tech { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.case-study::after {
+  content: "Read case →";
+  margin-top: var(--space-4);
+  font-family: var(--font-mono);
+  font-size: var(--fs-100);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  transition: color var(--dur-fast) var(--ease-out);
+}
+.case-study:hover::after { color: var(--cyan-soft); }
+
+/* Case detail blocks — rendered inside the popup */
+.case-cols { display: grid; gap: var(--space-5); }
+.case-label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-mono);
+  font-size: var(--fs-100);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin-bottom: var(--space-3);
+}
+.case-label::before {
+  content: "";
+  width: 16px;
+  height: 1px;
+  background: var(--accent-gradient);
+}
+.case-col p {
+  color: var(--text-muted);
+  font-size: var(--fs-300);
+  line-height: 1.6;
+}
+.case-link {
+  font-family: var(--font-mono);
+  font-size: var(--fs-200);
+  color: var(--cyan-soft);
+  white-space: nowrap;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+.case-link:hover { color: var(--text); }
 
 /* ---------- Contact ---------- */
 .contact { text-align: center; }
@@ -930,15 +1361,38 @@ body.cursor-ready button { cursor: none; }
 /* ---------- Responsive ---------- */
 @media (max-width: 900px) {
   .about-grid { grid-template-columns: 1fr; }
-  .project,
-  .project:nth-child(even) { grid-template-columns: 1fr; }
-  .project .project-visual { order: -1; }
+  .projects-list .project,
+  .projects-list .project[data-side="left"],
+  .projects-list .project[data-side="right"] {
+    width: 100%;
+    margin: 0 auto;
+    flex-direction: column;
+    text-align: center;
+    transform: none;
+  }
+  .projects-list .project { align-items: center; }
+  .project-visual { width: 100%; height: clamp(92px, 24vw, 140px); }
+  .project-body { align-items: center; }
+  .project-photo { float: none; margin: 0 auto var(--space-3); }
+  .project.open .project-detail { max-height: 1400px; }
 }
-@media (max-width: 760px) {
+/* Tighten the desktop nav on tablets, then collapse to a hamburger before the
+   five links (About / Skills / Work / Case Studies / Reviews) can crowd. */
+@media (max-width: 1024px) {
+  .nav-links { gap: var(--space-4); }
+}
+@media (max-width: 860px) {
   .nav-links { display: none; }
   .nav-cta { display: none; }
   .menu-toggle { display: grid; }
+}
+@media (max-width: 760px) {
   .hero-meta { gap: var(--space-6); }
   .cursor-dot, .cursor-ring, .cursor-spotlight { display: none; }
   body.cursor-ready, body.cursor-ready a, body.cursor-ready button { cursor: auto; }
+}
+/* Phones: drop the stat dividers so wrapped rows don't show orphan borders. */
+@media (max-width: 560px) {
+  .hero-meta { gap: var(--space-5) var(--space-6); }
+  .hero-meta .stat { border-left: none; padding-inline: 0; }
 }

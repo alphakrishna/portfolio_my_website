@@ -19,7 +19,9 @@ body {
   color: var(--text);
   background: var(--bg);
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+  font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
   overflow-x: hidden;
   min-height: 100vh;
 }
@@ -79,6 +81,7 @@ h1, h2, h3, h4 {
   font-weight: var(--fw-medium);
   line-height: var(--lh-snug);
   letter-spacing: -0.02em;
+  text-wrap: balance; /* keep headings from breaking into orphan words */
 }
 
 ::selection {
