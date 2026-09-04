@@ -43,7 +43,7 @@ function renderSkills() {
       (g) => `
       <article class="skill-group" data-reveal>
         <div class="skill-group-head">
-          <span class="ico">${g.icon}</span>
+          <span class="ico">${g.art || g.icon}</span>
           <h3>${g.title}</h3>
           <span class="count">${String(g.items.length).padStart(2, "0")}</span>
         </div>

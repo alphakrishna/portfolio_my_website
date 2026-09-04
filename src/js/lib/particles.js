@@ -122,6 +122,8 @@ export function initParticles(canvas) {
     ];
     // xs → Saturn only · sm → + teal orb · md+ → all three
     planets = all.slice(0, L.planetCount);
+    // Mobile (phones / small tablets): drop the ringed Saturn to keep it clean.
+    if (L.narrow) planets = planets.filter((p) => !p.hasRing);
   }
 
   function buildScene() {
@@ -135,7 +137,7 @@ export function initParticles(canvas) {
       },
       moon: {
         x: W * (narrow ? 0.74 : 0.8),
-        y: H * (narrow ? 0.2 : 0.46),
+        y: H * (narrow ? 0.7 : 0.46),   // mobile: lower-right, clear of the top copy
         r: clamp(min * (narrow ? 0.15 : 0.17), 60, 190),
         depth: 0.85,
       },
